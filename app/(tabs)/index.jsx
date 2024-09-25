@@ -1,12 +1,14 @@
 import { Link, useRouter } from 'expo-router';
 import React, { useEffect } from 'react'
-import { Button, Text, View } from 'react-native'
+import { Button, StyleSheet, Text, View } from 'react-native'
 import services from '../../utils/services';
 import { client } from '../../utils/KindConfig';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../../utils/SupaBaseConfig';
 import Header from '../../components/Header';
 import Colors from '../../utils/Colors';
+import CircularChart from '../../components/CircularChart';
+import { Ionicons } from "@expo/vector-icons"
 
 const Home = () => {
     const router = useRouter();
@@ -50,8 +52,11 @@ const Home = () => {
     }
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={{
+            flex: 1
+        }}>
             <View style={{
+
                 padding: 20,
                 backgroundColor: Colors.PRIMARY,
                 height: 100,
@@ -60,9 +65,21 @@ const Home = () => {
 
                 <Header />
             </View>
+            <CircularChart />
+            <Link href={'/add-new-category'} style={styles.adBtnContainer}>
+                <Ionicons name='add-circle' size={54} color={Colors.PRIMARY} />
+            </Link>
         </SafeAreaView>
     )
 }
 
 export default Home;
+
+const styles = StyleSheet.create({
+    adBtnContainer: {
+        position: "absolute",
+        bottom: 10,
+        right: 10
+    }
+})
 

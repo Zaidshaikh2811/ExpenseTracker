@@ -1,5 +1,5 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Tabs } from 'expo-router';
+import { Stack, Tabs } from 'expo-router';
 import Colors from '../../utils/Colors';
 const TabLayout = () => {
     return (
@@ -29,6 +29,7 @@ const TabLayout = () => {
                     tabBarIcon: ({ color }) => <FontAwesome size={28} name="user" color={color} />,
                 }}
             />
+
         </Tabs>
     )
 }
