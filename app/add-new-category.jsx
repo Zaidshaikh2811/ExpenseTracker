@@ -1,74 +1,126 @@
 import React, { useState } from 'react'
-import { StyleSheet, Text, TextInput, View } from 'react-native'
+import { Alert, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, ToastAndroid, TouchableWithoutFeedback, View } from 'react-native'
 import { MaterialIcons } from "@expo/vector-icons"
 import Colors from '../utils/Colors'
 import ColorPicker from '../components/ColorPicker'
 import { Foundation } from "@expo/vector-icons"
 import { TouchableOpacity } from 'react-native'
+import { supabase } from '../utils/SupaBaseConfig'
+import { client } from '../utils/KindConfig'
+import { useRouter } from 'expo-router'
 
 const AddNewCategory = () => {
 
+    const router = useRouter();
     const [selectedIcon, setSelectedIcon] = useState('')
     const [selectedColor, setSelectedColor] = useState(Colors.PRIMARY)
     const [categoryName, setCategoryName] = useState()
     const [totalBudget, setTotalBudget] = useState()
 
 
-    const onCreateCategory = () => {
+    const onCreateCategory = async () => {
+        try {
 
+            const user = await client.getUserDetails()
+            const { data, error } = await supabase.from("Category")
+                .insert([{
+                    name: categoryName,
+                    assigned_Budget: totalBudget,
+                    icon: selectedIcon,
+                    color: selectedColor,
+                    createdBy: user.email
+                }]).select();
+
+
+            if (error) {
+                Alert.alert('Error', 'Failed to create category');
+            } else {
+                Alert.alert('Success', 'Category Created Successfully');
+
+                // Clear input fields after saving
+                setCategoryName('');
+                setTotalBudget('');
+                setSelectedIcon('');
+                setSelectedColor(Colors.PRIMARY);
+                console.log(data);
+
+                router.replace({
+                    pathname: "/category-detail",
+                    params: {
+                        categoryId: data[0].id
+                    }
+                })
+
+            }
+
+        } catch (err) {
+
+            Alert.alert('Error', 'Something went wrong, please try again');
+
+        }
     }
 
     return (
-        <View style={{
-            padding: 20,
-        }} >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.container}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 
-            <View style={{
-                justifyContent: "center",
-                alignItems: "center"
-            }}>
-                <TextInput onChangeText={setSelectedIcon} maxLength={2} style={[styles.iconInput, { backgroundColor: selectedColor }]}>
-                    {selectedIcon}
-                </TextInput>
-                <ColorPicker selectedColor={selectedColor} setSelectedColor={setSelectedColor} />
-            </View>
 
-            <View style={styles.inputView}>
-                <MaterialIcons name='local-offer' size={24} color={Colors.GRAY} />
-                <TextInput onChangeText={setCategoryName} style={{
-                    width: "100%",
-                    fontSize: 17
-                }} placeholder='Category Name' />
-            </View>
-            <View style={styles.inputView}>
-                <Foundation name='dollar' size={30} color={Colors.GRAY} />
-                <TextInput onChangeText={setTotalBudget} style={{
-                    width: "100%",
-                    fontSize: 17
-                }} placeholder='Total Budget'
-                    keyboardType='number-pad'
-                />
-            </View>
+                <View style={{
+                    padding: 20,
+                }} >
 
-            <TouchableOpacity disabled={
-                !categoryName || !selectedColor || !selectedIcon || !totalBudget
-            } style={styles.button}>
-                <Text style={{
-                    color: Colors.WHITE,
-                    fontWeight: "bold",
-                    fontSize: 20,
-                    textTransform: "uppercase",
-                    textAlign: "center",
+                    <View style={{
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }}>
+                        <TextInput placeholder="?" onChangeText={setSelectedIcon} maxLength={2} style={[styles.iconInput, { backgroundColor: selectedColor }]}>
+                            {selectedIcon}
+                        </TextInput>
+                        <ColorPicker selectedColor={selectedColor} setSelectedColor={setSelectedColor} />
+                    </View>
 
-                }}>Create</Text>
-            </TouchableOpacity>
-        </View>
+                    <View style={styles.inputView}>
+                        <MaterialIcons name='local-offer' size={24} color={Colors.GRAY} />
+                        <TextInput onChangeText={setCategoryName} style={{
+                            width: "100%",
+                            fontSize: 17
+                        }} placeholder='Category Name' />
+                    </View>
+                    <View style={styles.inputView}>
+                        <Foundation name='dollar' size={30} color={Colors.GRAY} />
+                        <TextInput onChangeText={setTotalBudget} style={{
+                            width: "100%",
+                            fontSize: 17
+                        }} placeholder='Total Budget'
+                            keyboardType='number-pad'
+                        />
+                    </View>
+
+                    <TouchableOpacity disabled={
+                        !categoryName || !selectedColor || !selectedIcon || !totalBudget
+                    } style={styles.button} onPress={onCreateCategory}>
+                        <Text style={{
+                            color: Colors.WHITE,
+                            fontWeight: "bold",
+                            fontSize: 20,
+                            textTransform: "uppercase",
+                            textAlign: "center",
+
+                        }}>Create</Text>
+                    </TouchableOpacity>
+                </View>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     )
 }
 
 export default AddNewCategory;
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1
+    },
     iconInput: {
         textAlign: "center",
         fontSize: 30,

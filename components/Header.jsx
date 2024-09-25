@@ -21,10 +21,10 @@ const Header = () => {
     return (
         <View style={{
             flex: 1,
-            display: "flex",
+
             flexDirection: "row",
             gap: 8,
-            alignItems: "center"
+
         }}>
             <Image source={{ uri: user?.picture }} style={{
                 width: 50, height: 50, borderRadius: 99
@@ -32,11 +32,13 @@ const Header = () => {
             <View style={{
                 display: "flex",
                 flexDirection: "row",
-                alignItems: "center",
+
                 justifyContent: "space-between",
                 width: "85%"
             }}>
-                <View>
+                <View style={{
+                    alignItems: "center",
+                }}>
                     <Text style={{
                         color: Colors.WHITE, fontSize: 16,
                         fontFamily: 'outfit'

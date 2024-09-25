@@ -1,6 +1,6 @@
 import { Link, useRouter } from 'expo-router';
-import React, { useEffect } from 'react'
-import { Button, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { Button, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import services from '../../utils/services';
 import { client } from '../../utils/KindConfig';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,9 +9,12 @@ import Header from '../../components/Header';
 import Colors from '../../utils/Colors';
 import CircularChart from '../../components/CircularChart';
 import { Ionicons } from "@expo/vector-icons"
+import CategoryList from '../../components/CategoryList';
 
 const Home = () => {
     const router = useRouter();
+    const [categoryList, setCategoryList] = useState();
+    const [loading, setLoading] = useState(false)
     useEffect(() => {
         checkUserAuth();
         getCategoryList()
@@ -43,11 +46,14 @@ const Home = () => {
 
 
     const getCategoryList = async () => {
+        setLoading(true)
         const user = await client.getUserDetails();
-        const { data, error } = await supabase.from('Category').select('*')
+        const { data, error } = await supabase.from('Category').select('*,CategoryItems(*)')
             .eq('createdBy', user.email)
 
 
+        setCategoryList(data)
+        setLoading(false)
 
     }
 
@@ -55,17 +61,34 @@ const Home = () => {
         <SafeAreaView style={{
             flex: 1
         }}>
-            <View style={{
+            <ScrollView refreshControl={
+                <RefreshControl onRefresh={() => getCategoryList()} refreshing={loading} />
+            }>
 
-                padding: 20,
-                backgroundColor: Colors.PRIMARY,
-                height: 100,
-                justifyContent: "center"
-            }}>
+                <View style={{
 
-                <Header />
-            </View>
-            <CircularChart />
+                    padding: 20,
+                    backgroundColor: Colors.PRIMARY,
+                    height: 150,
+                    justifyContent: "center"
+                }}>
+
+                    <Header />
+                </View>
+                <View style={{
+
+                    padding: 20,
+                    marginTop: -75
+                }}>
+
+                    <CircularChart />
+                    {
+                        categoryList &&
+                        <CategoryList categoryList={categoryList} />
+                    }
+                </View>
+            </ScrollView>
+
             <Link href={'/add-new-category'} style={styles.adBtnContainer}>
                 <Ionicons name='add-circle' size={54} color={Colors.PRIMARY} />
             </Link>
