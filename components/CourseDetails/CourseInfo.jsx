@@ -38,7 +38,7 @@ const CourseInfo = ({ categoryData }) => {
                     <Text style={styles.categoryName}>{categoryData.name}</Text>
                     <Text style={styles.categoryItem}>{categoryData?.CategoryItems?.length} Item</Text>
                 </View>
-                <Ionicons name='trash' size={24} color="red" />
+                <Ionicons name='trash' size={30} color="red" />
             </View>
             <View style={styles.amountContainer}>
                 <Text style={{ fontFamily: "outfit" }}>Rs {totalCost}</Text>

@@ -2,37 +2,43 @@ import React, { useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import Colors from '../../utils/Colors';
 
+const placeholderImage = "https://www.shutterstock.com/image-vector/default-ui-image-placeholder-wireframes-600nw-1037719192.jpg";
+
 const CourseItemList = ({ categoryData }) => {
-    const placeholderImage = "https://www.shutterstock.com/image-vector/default-ui-image-placeholder-wireframes-600nw-1037719192.jpg";
 
     return (
         <View style={styles.container}>
             <Text style={styles.heading}>Item List</Text>
             <View>
-                {categoryData?.CategoryItems?.map((item, index) => {
-                    const [imageError, setImageError] = useState(false); // Track image load errors
+                {categoryData?.CategoryItems && categoryData.CategoryItems.length > 0 ? (
+                    categoryData.CategoryItems.map((item, index) => {
+                        const [imageError, setImageError] = useState(false); // Track image load errors
 
-                    return (
-                        <View key={index}>
-                            <View style={styles.imageContainer}>
-                                <Image
-                                    source={{ uri: imageError || !item.image ? placeholderImage : item.image }}
-                                    style={styles.image}
-                                    onError={() => setImageError(true)} // Set error flag if image load fails
-                                />
-                                <View style={{ flex: 1 }}>
-                                    <Text style={styles.name}>{item.name}</Text>
-                                    <Text style={styles.url}>{item.url}</Text>
+                        return (
+                            <View key={index}>
+                                <View style={styles.imageContainer}>
+                                    <Image
+                                        source={{ uri: imageError || !item.image ? placeholderImage : item.image }}
+                                        style={styles.image}
+                                        onError={() => setImageError(true)} // Set error flag if image load fails
+                                    />
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={styles.name}>{item.name}</Text>
+                                        <Text style={styles.url}>{item.url}</Text>
+                                    </View>
+                                    <Text style={styles.cost}>Rs: {item.cost}</Text>
                                 </View>
-                                <Text style={styles.cost}>Rs:{item.cost}</Text>
+                                {categoryData.CategoryItems.length - 1 !== index && (
+                                    <View style={{
+                                        borderWidth: 1, marginTop: 10, borderColor: Colors.GRAY
+                                    }} />
+                                )}
                             </View>
-                            {categoryData?.CategoryItems?.length - 1 != index &&
-                                <View style={{ borderWidth: 1, marginTop: 10, borderColor: Colors.GRAY }}></View>
-                            }
-
-                        </View>
-                    );
-                })}
+                        );
+                    })
+                ) : (
+                    <Text style={{ fontFamily: "outfit-bold", fontSize: 25, color: Colors.GRAY }}>No Items Available</Text>
+                )}
             </View>
         </View>
     );
@@ -56,7 +62,6 @@ const styles = StyleSheet.create({
     image: {
         width: 100,
         height: 80,
-
     },
     noImage: {
         backgroundColor: Colors.GRAY,
@@ -66,12 +71,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     imageContainer: {
-        display: "flex",
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 10,
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginTop: 10
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 10,
     },
     name: {
         fontSize: 16,
@@ -80,11 +84,10 @@ const styles = StyleSheet.create({
     url: {
         fontSize: 14,
         fontFamily: "outfit-regular",
-        color: "black"
+        color: 'black',
     },
     cost: {
         fontSize: 16,
         fontFamily: "outfit-bold",
-
-    }
+    },
 });

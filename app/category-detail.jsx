@@ -1,11 +1,11 @@
 
 
-import { useLocalSearchParams, useRouter } from 'expo-router'
+import { Link, useLocalSearchParams, useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Touchable, View } from 'react-native'
 import { supabase } from '../utils/SupaBaseConfig';
 import { Ionicons } from "@expo/vector-icons"
-import { Text } from 'react-native-web';
+
 import CourseInfo from '../components/CourseDetails/CourseInfo';
 import { TouchableOpacity } from 'react-native';
 import CourseItemList from '../components/CourseDetails/CourseItemList';
@@ -40,7 +40,8 @@ const CategoryDetails = () => {
     return (
         <View style={{
             padding: 20,
-            marginTop: 20
+            marginTop: 20,
+            flex: 1,
         }}>
             <TouchableOpacity onPress={() => router.back()}>
 
@@ -50,6 +51,21 @@ const CategoryDetails = () => {
             <CourseInfo categoryData={categoryData} />
 
             <CourseItemList categoryData={categoryData} />
+            <TouchableOpacity style={{
+                position: 'absolute',
+                bottom: 20,
+                right: 20,
+
+            }}>
+                <Link href={{
+                    pathname: "/add-new-category-item",
+                    params: {
+                        categoryId: categoryId.id
+                    }
+                }}>
+                    <Ionicons name="add-circle" size={60} color="black"></Ionicons>
+                </Link>
+            </TouchableOpacity>
         </View >
     )
 }
