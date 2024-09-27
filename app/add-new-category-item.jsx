@@ -1,15 +1,22 @@
 import React, { useState } from 'react'
-import { Image, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Image, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import Colors from '../utils/Colors';
 import { Ionicons } from "@expo/vector-icons"
 import { TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { supabase } from '../utils/SupaBaseConfig';
+import { decode } from "base64-arraybuffer"
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 const placeholderImage = "https://www.shutterstock.com/image-vector/default-ui-image-placeholder-wireframes-600nw-1037719192.jpg";
 
 
 const AddNewCategoryItem = () => {
+    const { categoryId } = useLocalSearchParams()
+    const router = useRouter()
+
+
     const [image, setImage] = useState(placeholderImage)
     const [previewImage, setPreviewImage] = useState(placeholderImage)
 
@@ -38,42 +45,86 @@ const AddNewCategoryItem = () => {
         }
     };
 
+
+    const onCLickAdd = async () => {
+        const fileName = Date.now();
+
+        const { data, error } = await supabase.storage.from('images')
+            .upload(fileName + ".png", decode(image), {
+                contentType: 'image/png'
+            })
+        console.log(data, error);
+
+        if (data) {
+
+            const fileUrl = "https://vflwvgmcseepnxbagybk.supabase.co/storage/v1/object/public/images/" + fileName + ".png"
+
+
+            const { data, error } = await supabase
+                .from('CategoryItems')
+                .insert([
+                    {
+                        name: name,
+                        url: url,
+                        note: note,
+                        image: fileUrl,
+                        cost: cost,
+                        note: note,
+                        category_id: categoryId,
+                    },
+                ])
+                .select()
+            router.push({
+                pathname: "/category-detail",
+                params: {
+                    categoryId: categoryId
+                }
+            })
+
+
+        }
+
+    }
+
     return (
-        <View style={{
-            padding: 20
-        }}>
+        <KeyboardAvoidingView>
 
-            <TouchableOpacity onPress={() => pickImage()}>
+            <ScrollView style={{
+                padding: 20
+            }}>
 
-                <Image source={{ uri: previewImage }} style={styles.image} />
-            </TouchableOpacity>
-            <View style={styles.textInputContainer}>
-                <Ionicons name='pricetag' size={24} color={Colors.GRAY} />
-                <TextInput value={name} onChangeText={setName} placeholder='Item Name' style={styles.input} />
-            </View>
-            <View style={styles.textInputContainer}>
-                <FontAwesome5 name="money-bill" size={24} color={Colors.GRAY} />
-                <TextInput placeholder='Cost' value={cost} onChangeText={setCost} keyboardType='number-pad' style={styles.input} />
-            </View>
-            <View style={styles.textInputContainer}>
-                <Ionicons name='link' size={24} color={Colors.GRAY} />
-                <TextInput value={url} onChangeText={setUrl} placeholder='Url' style={styles.input} />
-            </View>
-            <View style={styles.textInputContainer}>
-                <Ionicons name='pencil' size={24} color={Colors.GRAY} />
-                <TextInput value={note} onChangeText={setNote} placeholder='Note' style={[styles.input, { height: 80, }]} multiline={true}
-                    numberOfLines={3} />
-            </View>
-            <TouchableOpacity disabled={
-                !name || !cost || !url || !image
-            } style={styles.button}>
-                <Text style={{
-                    textAlign: "center",
-                    fontFamily: "outfit-bold",
-                    color: Colors.WHITE
-                }}>Add</Text>
-            </TouchableOpacity>
-        </View>
+                <TouchableOpacity onPress={() => pickImage()}>
+
+                    <Image source={{ uri: previewImage }} style={styles.image} />
+                </TouchableOpacity>
+                <View style={styles.textInputContainer}>
+                    <Ionicons name='pricetag' size={24} color={Colors.GRAY} />
+                    <TextInput value={name} onChangeText={setName} placeholder='Item Name' style={styles.input} />
+                </View>
+                <View style={styles.textInputContainer}>
+                    <FontAwesome5 name="money-bill" size={24} color={Colors.GRAY} />
+                    <TextInput placeholder='Cost' value={cost} onChangeText={setCost} keyboardType='number-pad' style={styles.input} />
+                </View>
+                <View style={styles.textInputContainer}>
+                    <Ionicons name='link' size={24} color={Colors.GRAY} />
+                    <TextInput value={url} onChangeText={setUrl} placeholder='Url' style={styles.input} />
+                </View>
+                <View style={styles.textInputContainer}>
+                    <Ionicons name='pencil' size={24} color={Colors.GRAY} />
+                    <TextInput value={note} onChangeText={setNote} placeholder='Note' style={[styles.input, { height: 80, }]} multiline={true}
+                        numberOfLines={3} />
+                </View>
+                <TouchableOpacity disabled={
+                    !name || !cost || !url || !image
+                } style={styles.button} onPress={onCLickAdd}>
+                    <Text style={{
+                        textAlign: "center",
+                        fontFamily: "outfit-bold",
+                        color: Colors.WHITE
+                    }}>Add</Text>
+                </TouchableOpacity>
+            </ScrollView>
+        </KeyboardAvoidingView>
     )
 }
 

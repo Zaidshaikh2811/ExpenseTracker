@@ -14,6 +14,7 @@ const CategoryDetails = () => {
     const { categoryId } = useLocalSearchParams();
     const router = useRouter()
     const [categoryData, setCategoryData] = useState([])
+    console.log(categoryId);
 
 
     useEffect(() => {
@@ -60,7 +61,7 @@ const CategoryDetails = () => {
                 <Link href={{
                     pathname: "/add-new-category-item",
                     params: {
-                        categoryId: categoryId.id
+                        categoryId: categoryId
                     }
                 }}>
                     <Ionicons name="add-circle" size={60} color="black"></Ionicons>
