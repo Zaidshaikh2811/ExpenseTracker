@@ -20,8 +20,14 @@ const CourseInfo = ({ categoryData }) => {
             total += item.cost;
         })
         setTotalCost(total);
-        const perc = (total / categoryData.assigned_Budget) * 100;
+        let perc = (total / categoryData.assigned_Budget) * 100;
+        if (perc > 100) {
+            perc = 100
+        }
+
+
         setPercTotal(perc);
+
 
 
     }

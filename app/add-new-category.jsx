@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Alert, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, ToastAndroid, TouchableWithoutFeedback, View } from 'react-native'
+import { ActivityIndicator, Alert, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, ToastAndroid, TouchableWithoutFeedback, View } from 'react-native'
 import { MaterialIcons } from "@expo/vector-icons"
 import Colors from '../utils/Colors'
 import ColorPicker from '../components/ColorPicker'
@@ -16,9 +16,11 @@ const AddNewCategory = () => {
     const [selectedColor, setSelectedColor] = useState(Colors.PRIMARY)
     const [categoryName, setCategoryName] = useState()
     const [totalBudget, setTotalBudget] = useState()
+    const [loading, setLoading] = useState(false)
 
 
     const onCreateCategory = async () => {
+        setLoading(true)
         try {
 
             const user = await client.getUserDetails()
@@ -42,7 +44,7 @@ const AddNewCategory = () => {
                 setTotalBudget('');
                 setSelectedIcon('');
                 setSelectedColor(Colors.PRIMARY);
-                console.log(data);
+
 
                 router.replace({
                     pathname: "/category-detail",
@@ -57,6 +59,9 @@ const AddNewCategory = () => {
 
             Alert.alert('Error', 'Something went wrong, please try again');
 
+        }
+        finally {
+            setLoading(false)
         }
     }
 
@@ -98,16 +103,18 @@ const AddNewCategory = () => {
                     </View>
 
                     <TouchableOpacity disabled={
-                        !categoryName || !selectedColor || !selectedIcon || !totalBudget
+                        !categoryName || !selectedColor || !selectedIcon || !totalBudget || loading
                     } style={styles.button} onPress={onCreateCategory}>
-                        <Text style={{
-                            color: Colors.WHITE,
-                            fontWeight: "bold",
-                            fontSize: 20,
-                            textTransform: "uppercase",
-                            textAlign: "center",
+                        {loading ? <ActivityIndicator /> :
+                            <Text style={{
+                                color: Colors.WHITE,
+                                fontWeight: "bold",
+                                fontSize: 20,
+                                textTransform: "uppercase",
+                                textAlign: "center",
 
-                        }}>Create</Text>
+                            }}>Create</Text>
+                        }
                     </TouchableOpacity>
                 </View>
             </TouchableWithoutFeedback>

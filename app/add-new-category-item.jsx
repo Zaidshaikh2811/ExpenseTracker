@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Image, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Image, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import Colors from '../utils/Colors';
 import { Ionicons } from "@expo/vector-icons"
 import { TouchableOpacity } from 'react-native';
@@ -24,6 +24,7 @@ const AddNewCategoryItem = () => {
     const [url, setUrl] = useState('')
     const [note, setNote] = useState('')
     const [cost, setCost] = useState('')
+    const [loading, setLoading] = useState(false)
 
 
     const pickImage = async () => {
@@ -47,41 +48,48 @@ const AddNewCategoryItem = () => {
 
 
     const onCLickAdd = async () => {
-        const fileName = Date.now();
+        setLoading(true)
+        try {
 
-        const { data, error } = await supabase.storage.from('images')
-            .upload(fileName + ".png", decode(image), {
-                contentType: 'image/png'
-            })
-        console.log(data, error);
+            const fileName = Date.now();
 
-        if (data) {
-
-            const fileUrl = "https://vflwvgmcseepnxbagybk.supabase.co/storage/v1/object/public/images/" + fileName + ".png"
+            const { data, error } = await supabase.storage.from('images')
+                .upload(fileName + ".png", decode(image), {
+                    contentType: 'image/png'
+                })
 
 
-            const { data, error } = await supabase
-                .from('CategoryItems')
-                .insert([
-                    {
-                        name: name,
-                        url: url,
-                        note: note,
-                        image: fileUrl,
-                        cost: cost,
-                        note: note,
-                        category_id: categoryId,
-                    },
-                ])
-                .select()
-            router.push({
-                pathname: "/category-detail",
-                params: {
-                    categoryId: categoryId
-                }
-            })
+            if (data) {
+
+                const fileUrl = "https://vflwvgmcseepnxbagybk.supabase.co/storage/v1/object/public/images/" + fileName + ".png"
 
 
+                const { data, error } = await supabase
+                    .from('CategoryItems')
+                    .insert([
+                        {
+                            name: name,
+                            url: url,
+                            note: note,
+                            image: fileUrl,
+                            cost: cost,
+
+                            category_id: categoryId,
+                        },
+                    ])
+                    .select()
+                if (error) throw insertError;
+
+            }
+            router.back()
+
+
+        } catch (error) {
+
+            console.log(error)
+        } finally {
+
+            setLoading(false)
         }
 
     }
@@ -115,13 +123,15 @@ const AddNewCategoryItem = () => {
                         numberOfLines={3} />
                 </View>
                 <TouchableOpacity disabled={
-                    !name || !cost || !url || !image
+                    !name || !cost || !url || !image || loading
                 } style={styles.button} onPress={onCLickAdd}>
-                    <Text style={{
-                        textAlign: "center",
-                        fontFamily: "outfit-bold",
-                        color: Colors.WHITE
-                    }}>Add</Text>
+                    {loading ? <ActivityIndicator /> :
+                        <Text style={{
+                            textAlign: "center",
+                            fontFamily: "outfit-bold",
+                            color: Colors.WHITE
+                        }}>Add</Text>
+                    }
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>

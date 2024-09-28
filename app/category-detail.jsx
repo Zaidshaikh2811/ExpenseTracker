@@ -14,7 +14,7 @@ const CategoryDetails = () => {
     const { categoryId } = useLocalSearchParams();
     const router = useRouter()
     const [categoryData, setCategoryData] = useState([])
-    console.log(categoryId);
+
 
 
     useEffect(() => {
