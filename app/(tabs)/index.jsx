@@ -81,7 +81,7 @@ const Home = () => {
                     marginTop: -75
                 }}>
 
-                    <CircularChart />
+                    <CircularChart categoryList={categoryList} />
                     {
                         categoryList &&
                         <CategoryList categoryList={categoryList} />

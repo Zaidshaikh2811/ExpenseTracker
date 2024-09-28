@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Alert, StyleSheet, Text, View } from 'react-native'
 import { Ionicons } from "@expo/vector-icons"
 import Colors from '../../utils/Colors'
+import { TouchableOpacity } from 'react-native'
+import { supabase } from '../../utils/SupaBaseConfig'
+import { useRouter } from 'expo-router'
 
 
 const CourseInfo = ({ categoryData }) => {
 
     const [totalCost, setTotalCost] = useState();
     const [percTotal, setPercTotal] = useState(0);
-
+    const router = useRouter()
 
 
     useEffect(() => {
@@ -31,6 +34,42 @@ const CourseInfo = ({ categoryData }) => {
 
 
     }
+
+
+
+    const deleteCategory = async () => {
+        const { error } = await supabase.from("CategoryItems").delete()
+            .eq("category_id", categoryData.id);
+        console.log(error);
+
+
+        await supabase.from("Category").delete()
+            .eq("id", categoryData.id);
+        router.replace('/(tabs)')
+
+    }
+
+    const onDeleteCategory = () => {
+        Alert.alert(
+            "Are You Sure?", // Title
+            "Do you really want to delete?", // Message
+            [
+                {
+                    text: "Cancel", // Button label
+                    style: "cancel", // Button style
+                },
+                {
+                    text: "Yes", // Button label
+                    onPress: async () => {
+                        await deleteCategory(); // Call your delete function
+                    },
+                    style: "default" // Button style
+                }
+            ],
+            { cancelable: true } // Makes alert dismissable by tapping outside
+        );
+    }
+
     return (
         <View>
 
@@ -44,7 +83,10 @@ const CourseInfo = ({ categoryData }) => {
                     <Text style={styles.categoryName}>{categoryData.name}</Text>
                     <Text style={styles.categoryItem}>{categoryData?.CategoryItems?.length} Item</Text>
                 </View>
-                <Ionicons name='trash' size={30} color="red" />
+                <TouchableOpacity onPress={() => onDeleteCategory()}>
+
+                    <Ionicons name='trash' size={30} color="red" />
+                </TouchableOpacity>
             </View>
             <View style={styles.amountContainer}>
                 <Text style={{ fontFamily: "outfit" }}>Rs {totalCost}</Text>

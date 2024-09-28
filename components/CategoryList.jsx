@@ -1,10 +1,13 @@
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { StyleSheet, Text, Touchable, View } from 'react-native';
 
 const CategoryList = ({ categoryList }) => {
     const router = useRouter();
+
+
+
     const onCategoryClick = (category) => {
         router.push({
             pathname: "/category-detail",
@@ -14,11 +17,21 @@ const CategoryList = ({ categoryList }) => {
         })
     }
 
+
+
+    const calculateTotalCost = (categoryItems) => {
+        let totalCost = 0;
+        categoryItems?.forEach((item) => {
+            totalCost += item.cost;
+        });
+        return totalCost
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Latest Budget</Text>
             <View>
-                {categoryList.map((category, index) => {
+                {categoryList?.map((category, index) => {
                     return (
                         <TouchableOpacity onPress={() => onCategoryClick(category)} key={index} style={styles.details}>
                             <View style={styles.iconContainer}>
@@ -33,8 +46,8 @@ const CategoryList = ({ categoryList }) => {
                                         {category?.CategoryItems?.length ?? 0} items
                                     </Text>
                                 </View>
-                                <Text style={styles.budgetText}>$50,000</Text>
-                                {/* You can dynamically replace "$50,000" with actual budget if available */}
+                                <Text style={styles.budgetText}>Rs{calculateTotalCost(category?.CategoryItems)}</Text>
+
                             </View>
                         </TouchableOpacity>
                     );
